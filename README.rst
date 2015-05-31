@@ -11,22 +11,22 @@ Traversal based router for aiohttp.web
   :align: center
 
 
-.. -------
-.. Schemes
-.. -------
+-------
+Schemes
+-------
 
-.. **Request lifetime**
+**Request lifetime**
 
-.. .. image:: https://raw.githubusercontent.com/zzzsochi/aiohttp_traversal/master/doc/img/request_lifetime.png
-..    :alt: Request lifetime
-..    :align: center
+.. image:: https://raw.githubusercontent.com/zzzsochi/aiohttp_traversal/master/doc/img/request_lifetime.png
+   :alt: Request lifetime
+   :align: center
 
 
-.. **Traversal algorithm**
+**Traversal algorithm**
 
-.. .. image:: https://raw.githubusercontent.com/zzzsochi/aiohttp_traversal/master/doc/img/traversal_algorithm.png
-..    :alt: Traversal algorithm
-..    :align: center
+.. image:: https://raw.githubusercontent.com/zzzsochi/aiohttp_traversal/master/doc/img/traversal_algorithm.png
+   :alt: Traversal algorithm
+   :align: center
 
 -----
 Tests
