@@ -1,0 +1,13 @@
+language: python
+python:
+    - "3.4"
+
+install:
+    - python3 setup.py install
+    - pip install python-coveralls pytest-cov
+
+script:
+    - py.test tests -v --cov aiohttp_traversal --cov-report term-missing
+
+after_success:
+    - coveralls

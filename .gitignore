@@ -1,0 +1,17 @@
+__pycache__/*
+/dist/
+
+*.pyc
+*.pyo
+*.egg
+*.egg-info
+
+.python-version
+.coverage
+
+*.sublime-settings
+*.sublime-project
+*.sublime-workspace
+
+*.swo
+*.swp
