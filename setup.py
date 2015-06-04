@@ -15,7 +15,7 @@ setup(name='aiohttp_traversal',
       license='BSD',
       url='https://github.com/zzzsochi/aiohttp_traversal',
       keywords=['asyncio', 'aiohttp', 'traversal', 'pyramid'],
-      packages=['aiohttp_traversal'],
+      packages=['aiohttp_traversal', 'aiohttp_traversal.ext'],
       install_requires=[
           'aiohttp',
           'resolver_deco',
