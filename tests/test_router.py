@@ -59,8 +59,10 @@ def test_resolve__not_found(loop, router, request, root):
     router.traverse = traverse
     router.resolve_view = resolve_view
 
+    mi = loop.run_until_complete(router.resolve(request))
+
     with pytest.raises(HTTPNotFound):
-        loop.run_until_complete(router.resolve(request))
+        mi.handler(request)
 
 
 def test_traverse(loop, router, request):

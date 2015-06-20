@@ -20,15 +20,23 @@ class ViewNotResolved(Exception):
 
 
 class MatchInfo(AbstractMatchInfo):
+    route = None
+
     def __init__(self, view):
         self._view = view
 
     def handler(self, request):
         return self._view()
 
-    @property
-    def route(self):
+
+class _NotFoundMatchInfo(AbstractMatchInfo):
+    route = None
+
+    def __init__(self):
         pass
+
+    def handler(self, request):
+        raise HTTPNotFound()
 
 
 class TraversalRouter(AbstractRouter):
@@ -48,7 +56,7 @@ class TraversalRouter(AbstractRouter):
         try:
             view = self.resolve_view(resource, tail)
         except ViewNotResolved:
-            raise HTTPNotFound
+            return _NotFoundMatchInfo()
 
         return MatchInfo(view)
 
