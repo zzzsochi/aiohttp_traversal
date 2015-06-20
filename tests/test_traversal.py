@@ -23,6 +23,12 @@ def test_traverse(loop, root):
     assert len(list(lineage(res))) == 4
 
 
+def test_traverse_empty(loop, root):
+    res, tail = loop.run_until_complete(traverse(root, []))
+    assert res is root
+    assert not tail
+
+
 def test_traverse_with_tail(loop, root):
     res, tail = loop.run_until_complete(traverse(root, ('a', 'b', 'not', 'c')))
     assert res.name == 'b'
