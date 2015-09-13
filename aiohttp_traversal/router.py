@@ -95,6 +95,9 @@ class TraversalRouter(AbstractRouter):
 
         for rc in resource_class.__mro__[:-1]:
             if rc in self.resources:
+                if 'views' not in self.resources[rc]:
+                    continue
+
                 views = self.resources[rc]['views']
 
                 if tail in views:
@@ -118,7 +121,7 @@ class TraversalRouter(AbstractRouter):
             tail = tuple(i for i in tail.split('/') if i)
 
         setup = self.resources.setdefault(resource, {'views': {}})
-        setup['views'][tail] = view
+        setup.setdefault('views', {})[tail] = view
 
     def __repr__(self):
         return "<{}>".format(self.__class__.__name__)
