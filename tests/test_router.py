@@ -1,12 +1,11 @@
 from unittest.mock import Mock
+import asyncio
 
 import pytest
 from aiohttp.web_exceptions import HTTPNotFound
 
 from aiohttp_traversal.traversal import find_root, lineage
 from aiohttp_traversal.router import MatchInfo, ViewNotResolved
-
-from .helpers import *
 
 
 @pytest.fixture
@@ -39,7 +38,7 @@ def test_resolve(loop, router, request, root):
     mi = loop.run_until_complete(router.resolve(request))
 
     assert isinstance(mi, MatchInfo)
-    assert mi._view.name == 'view'
+    assert mi.view.name == 'view'
     assert mi.route is None
 
     result = loop.run_until_complete(mi.handler(request))
@@ -53,8 +52,8 @@ def test_resolve__not_found(loop, router, request, root):
     def traverse(request):
         return ('res', 'tail')
 
-    def resolve_view(res, tail):
-        raise ViewNotResolved(res, tail)
+    def resolve_view(req, res, tail):
+        raise ViewNotResolved(req, res, tail)
 
     router.traverse = traverse
     router.resolve_view = resolve_view
@@ -115,59 +114,61 @@ def test_set_root_factory(router):
     assert router._root_factory is new_root_class
 
 
-def test_get_root(loop, router):
-    assert loop.run_until_complete(router.get_root('request')).name == 'ROOT'
+def test_get_root(loop, router, app):
+    assert loop.run_until_complete(router.get_root(app)).name == 'ROOT'
 
 
 @pytest.fixture
-def Res():
+def Res():  # noqa
     return type('res', (), {})
 
 
 @pytest.fixture
-def View():
+def View():  # noqa
     class View:
-        def __init__(self, resource):
+        def __init__(self, request, resource, tail):
+            self.request = request
             self.resource = resource
+            self.tail = tail
 
     return View
 
 
-def test_resolve_view(router, Res, View):
+def test_resolve_view(router, Res, View):  # noqa
     res = Res()
     tail = ('a', 'b')
     router.resources[Res] = {'views': {tail: View}}
 
-    view = router.resolve_view(res, tail)
+    view = router.resolve_view(None, res, tail)
 
     assert isinstance(view, View)
     assert view.resource is res
 
 
-def test_resolve_view__asterisk(router, Res, View):
+def test_resolve_view__asterisk(router, Res, View):  # noqa
     res = Res()
     router.resources[Res] = {'views': {'*': View}}
 
-    view = router.resolve_view(res, ('a', 'b'))
+    view = router.resolve_view(None, res, ('a', 'b'))
 
     assert isinstance(view, View)
     assert view.resource is res
 
 
-def test_resolve_view__mro(router, Res, View):
+def test_resolve_view__mro(router, Res, View):  # noqa
     class SubRes(Res):
         pass
 
     res = SubRes()
     router.resources[Res] = {'views': {'*': View}}
 
-    view = router.resolve_view(res, '*')
+    view = router.resolve_view(None, res, '*')
 
     assert isinstance(view, View)
     assert view.resource is res
 
 
-def test_resolve_view__mro_invert(router, Res, View):
+def test_resolve_view__mro_invert(router, Res, View):  # noqa
     class SubRes(Res):
         pass
 
@@ -175,25 +176,25 @@ def test_resolve_view__mro_invert(router, Res, View):
     router.resources[SubRes] = {'views': {'*': View}}
 
     with pytest.raises(ViewNotResolved):
-        router.resolve_view(res, '*')
+        router.resolve_view(None, res, '*')
 
 
 def test_resolve_view__not_resolved(router):
     with pytest.raises(ViewNotResolved):
-        router.resolve_view(str, ())
+        router.resolve_view(None, str, ())
 
 
-def test_bind_view(router, Res, View):
+def test_bind_view(router, Res, View):  # noqa
     router.bind_view(Res, View)
     assert router.resources[Res]['views'][()] is View
 
 
-def test_bind_view__tail_str(router, Res, View):
+def test_bind_view__tail_str(router, Res, View):  # noqa
     router.bind_view(Res, View, '/a/b')
     assert router.resources[Res]['views'][('a', 'b')] is View
 
 
-def test_bind_view__tail_str_asterisk(router, Res, View):
+def test_bind_view__tail_str_asterisk(router, Res, View):  # noqa
     router.bind_view(Res, View, '*')
     assert router.resources[Res]['views']['*'] is View
 

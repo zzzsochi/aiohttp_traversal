@@ -8,8 +8,6 @@ from aiohttp_traversal.traversal import (
     lineage,
 )
 
-from .helpers import *
-
 
 @pytest.fixture
 def res_c(loop, root):

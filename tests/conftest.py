@@ -18,12 +18,7 @@ def loop():
 
 @pytest.fixture
 def root_factory():
-    return lambda request=None: Resource(parent=None, name='ROOT')
-
-
-@pytest.fixture
-def root(root_factory):
-    return root_factory()
+    return lambda app: Resource(parent=None, name='ROOT')
 
 
 class Resource(AbstractResource):
@@ -55,3 +50,8 @@ def router(root_factory):
 @pytest.fixture
 def app(loop, router):
     return Application(loop=loop, router=router)
+
+
+@pytest.fixture
+def root(app, root_factory):
+    return root_factory(app)
