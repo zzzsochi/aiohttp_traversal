@@ -13,8 +13,9 @@ log = logging.getLogger(__name__)
 class ViewNotResolved(Exception):
     """ Raised from Application.resolve_view
     """
-    def __init__(self, resource, tail):
-        super().__init__(resource, tail)
+    def __init__(self, request, resource, tail):
+        super().__init__(request, resource, tail)
+        self.request = request
         self.resource = resource
         self.tail = tail
 
@@ -22,11 +23,13 @@ class ViewNotResolved(Exception):
 class MatchInfo(AbstractMatchInfo):
     route = None
 
-    def __init__(self, view):
-        self._view = view
+    def __init__(self, request, resource, tail, view):
+        self.request = request
+        self.resource = resource
+        self.view = view
 
     def handler(self, request):
-        return self._view()
+        return self.view()
 
 
 class _NotFoundMatchInfo(AbstractMatchInfo):
@@ -54,11 +57,11 @@ class TraversalRouter(AbstractRouter):
         request.tail = tail
 
         try:
-            view = self.resolve_view(resource, tail)
+            view = self.resolve_view(request, resource, tail)
         except ViewNotResolved:
             return _NotFoundMatchInfo()
 
-        return MatchInfo(view)
+        return MatchInfo(request, resource, tail, view)
 
     @asyncio.coroutine
     def traverse(self, request):
@@ -85,7 +88,7 @@ class TraversalRouter(AbstractRouter):
         return self._root_factory(request)
 
     @resolver('resource')
-    def resolve_view(self, resource, tail=()):
+    def resolve_view(self, request, resource, tail=()):
         """ Resolve view for resource and tail
         """
         if isinstance(resource, type):
@@ -109,9 +112,9 @@ class TraversalRouter(AbstractRouter):
                     break
 
         else:
-            raise ViewNotResolved(resource, tail)
+            raise ViewNotResolved(request, resource, tail)
 
-        return view(resource)
+        return view(request, resource, tail)
 
     @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):

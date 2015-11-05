@@ -8,9 +8,10 @@ from aiohttp_traversal.abc import AbstractView
 
 
 class View(AbstractView):
-    def __init__(self, resource):
+    def __init__(self, request, resource, tail):
+        self.request = request
         self.resource = resource
-        self.request = self.resource.request
+        self.tail = tail
 
     @asyncio.coroutine
     def __call__(self):

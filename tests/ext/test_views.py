@@ -12,18 +12,19 @@ from aiohttp_traversal.ext.views import (
     RESTView,
 )
 
-from ..helpers import *
 
-
-def test_View_init():
+def test_View_init():  # noqa
+    request = Mock(name='request')
     resource = Mock(name='resource')
-    view = View(resource)
+    tail = ('ta', 'il')
+    view = View(request, resource, tail)
+    assert view.request is request
     assert view.resource is resource
-    assert view.request is resource.request
+    assert view.tail is tail
 
 
 @pytest.fixture
-def MVw(request):
+def MVw(request):  # noqa
     class MVw(MethodsView):
         methods = {'get', 'post'}
 
@@ -34,32 +35,38 @@ def MVw(request):
     return MVw
 
 
-def test_MethodsView_call(loop, MVw):
+def test_MethodsView_call(loop, MVw):  # noqa
+    request = Mock(name='request')
+    request.method = 'GET'
     resource = Mock(name='resource')
-    resource.request.method = 'GET'
+    tail = ('ta', 'il')
 
-    resp = loop.run_until_complete(MVw(resource)())
+    resp = loop.run_until_complete(MVw(request, resource, tail)())
     assert resp == 'data'
 
 
-def test_MethodsView_call__not_implemented(loop, MVw):
+def test_MethodsView_call__not_implemented(loop, MVw):  # noqa
+    request = Mock(name='request')
+    request.method = 'POST'
     resource = Mock(name='resource')
-    resource.request.method = 'POST'
+    tail = ('ta', 'il')
 
     with pytest.raises(NotImplementedError):
-        loop.run_until_complete(MVw(resource)())
+        loop.run_until_complete(MVw(request, resource, tail)())
 
 
-def test_MethodsView_call__not_allowed(loop, MVw):
+def test_MethodsView_call__not_allowed(loop, MVw):  # noqa
+    request = Mock(name='request')
+    request.method = 'DELETE'
     resource = Mock(name='resource')
-    resource.request.method = 'DELETE'
+    tail = ('ta', 'il')
 
     with pytest.raises(HTTPMethodNotAllowed):
-        loop.run_until_complete(MVw(resource)())
+        loop.run_until_complete(MVw(request, resource, tail)())
 
 
 @pytest.fixture
-def RVw():
+def RVw():  # noqa
     class RVw(RESTView):
         methods = {'get', 'post'}
 
@@ -74,17 +81,21 @@ def RVw():
     return RVw
 
 
-def test_RESTView__dict(loop, RVw):
+def test_RESTView__dict(loop, RVw):  # noqa
+    request = Mock(name='request')
+    request.method = 'GET'
     resource = Mock(name='resource')
-    resource.request.method = 'GET'
+    tail = ('ta', 'il')
 
-    resp = loop.run_until_complete(RVw(resource)())
+    resp = loop.run_until_complete(RVw(request, resource, tail)())
     assert isinstance(resp, Response)
 
 
-def test_RESTView__response(loop, RVw):
+def test_RESTView__response(loop, RVw):  # noqa
+    request = Mock(name='request')
+    request.method = 'POST'
     resource = Mock(name='resource')
-    resource.request.method = 'POST'
+    tail = ('ta', 'il')
 
-    resp = loop.run_until_complete(RVw(resource)())
+    resp = loop.run_until_complete(RVw(request, resource, tail)())
     assert isinstance(resp, Response)

@@ -24,7 +24,7 @@ def test_resolve(loop, router, request, root):
     def traverse(request):
         return ('res', 'tail')
 
-    def resolve_view(res, tail):
+    def resolve_view(req, res, tail):
         @asyncio.coroutine
         def view_call():
             return 'view_result'
