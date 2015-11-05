@@ -12,17 +12,15 @@ log = logging.getLogger(__name__)
 class Resource(AbstractResource):
     _parent = None
     name = None
-    request = None
     app = None
     setup = None
 
     def __init__(self, parent, name):
         self._parent = parent
-        self.name = name
+        self.name = str(name)
 
         if parent is not None:
-            self.request = parent.request
-            self.app = self.request.app
+            self.app = parent.app
             self.setup = self.app.router.resources.get(self.__class__)
 
     @property
@@ -80,10 +78,11 @@ class DispatchResource(DispatchMixin, Resource):
 
 
 class Root(DispatchResource):
-    def __init__(self, request):
+    def __init__(self, app, *args, **kwargs):
         super().__init__(parent=None, name=None)
-        self.request = request
-        self.app = self.request.app
+        self.app = app
+        self.args = args
+        self.kwargs = kwargs
         self.setup = self.app.router.resources.get(self.__class__)
 
 
