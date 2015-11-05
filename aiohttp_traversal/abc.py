@@ -4,11 +4,11 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 
 class AbstractResource(metaclass=ABCMeta):
     @abstractproperty
-    def __parent__():
+    def __parent__(self):
         """ Parent resource or None for root """
 
     @abstractmethod
-    def __getitem__(name):
+    def __getitem__(self, name):
         """ Return traversal.Traverser instance
 
         In simple:
@@ -18,16 +18,16 @@ class AbstractResource(metaclass=ABCMeta):
 
     @asyncio.coroutine
     @abstractmethod
-    def __getchild__(name):
+    def __getchild__(self, name):
         """ Return child resource or None, if not exists """
 
 
 class AbstractView(metaclass=ABCMeta):
     @abstractmethod
-    def __init__(resource):
+    def __init__(self, resource, request):
         """ Receive current traversed resource """
 
     @asyncio.coroutine
     @abstractmethod
-    def __call__():
+    def __call__(self):
         """ Return aiohttp.web.Response """
