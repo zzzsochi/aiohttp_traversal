@@ -90,5 +90,9 @@ class Root(DispatchResource):
 def add_child(app, parent, name, child):
     """ Add child resource for dispatch-resources
     """
+    if not issubclass(parent, DispatchMixin):
+        raise ValueError("{!r} is not a DispatchMixin subclass"
+                         "".format(parent))
+
     parent_setup = app.router.resources.setdefault(parent, {})
     parent_setup.setdefault('children', {})[name] = child
