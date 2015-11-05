@@ -46,22 +46,22 @@ class InitCoroMixin:
         @asyncio.coroutine
         def coro():
             instance.__init__(*args, **kwargs)
-            yield from instance.__init_coro__()
+            yield from instance.__ainit__()
             return instance
 
         return coro()
 
     @asyncio.coroutine
-    def __init_coro__(self):
+    def __ainit__(self):
         raise NotImplementedError
 
 
 class DispatchMixin:
     @asyncio.coroutine
     def __getchild__(self, name):
-        if (self.setup is not None
-                and 'children' in self.setup
-                and name in self.setup['children']):
+        if (self.setup is not None and
+                'children' in self.setup and
+                name in self.setup['children']):
 
             res = self.setup['children'][name](self, name)
 
