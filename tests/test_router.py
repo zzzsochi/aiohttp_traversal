@@ -8,6 +8,10 @@ from aiohttp_traversal.traversal import find_root, lineage
 from aiohttp_traversal.router import MatchInfo, ViewNotResolved
 
 
+def test_repr(router):
+    repr(router)
+
+
 @pytest.fixture
 def request(app):
     request = Mock(name='request')
@@ -131,6 +135,9 @@ def View():  # noqa
             self.resource = resource
             self.tail = tail
 
+        def __call__(self):
+            return 'response'
+
     return View
 
 
@@ -143,6 +150,20 @@ def test_resolve_view(router, Res, View):  # noqa
 
     assert isinstance(view, View)
     assert view.resource is res
+
+
+def test_resolve_view_simple(router, Res):  # noqa
+    @asyncio.coroutine
+    def view():
+        pass
+
+    res = Res()
+    tail = ('a', 'b')
+    router.resources[Res] = {'views': {tail: view}}
+
+    result_view = router.resolve_view(None, res, tail)
+
+    assert result_view is view
 
 
 def test_resolve_view__asterisk(router, Res, View):  # noqa
@@ -199,5 +220,20 @@ def test_bind_view__tail_str_asterisk(router, Res, View):  # noqa
     assert router.resources[Res]['views']['*'] is View
 
 
-def test_repr(router):
-    repr(router)
+def test_match_info(router, View):  # noqa
+    view = View('request', 'resource', 'tail')
+    mi = MatchInfo('request', 'resource', 'tail', view)
+    response = mi.handler('request')
+    assert response == 'response'
+
+
+def test_match_info__simple_view(router):
+    def view(request, resource, tail):
+        assert request == 'request'
+        assert resource == 'resource'
+        assert tail == 'tail'
+        return 'response'
+
+    mi = MatchInfo('request', 'resource', 'tail', view)
+    response = mi.handler('request')
+    assert response == 'response'

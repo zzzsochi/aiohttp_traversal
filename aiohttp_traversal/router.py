@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import sys
+import types
 
 from aiohttp.abc import AbstractRouter, AbstractMatchInfo
 from aiohttp.web_exceptions import HTTPNotFound
@@ -8,6 +10,11 @@ from resolver_deco import resolver
 from .traversal import traverse
 
 log = logging.getLogger(__name__)
+
+if sys.version_info >= (3, 5, 0):  # b/c for 3.4
+    SIMPLE_VIEWS_TYPES = (types.FunctionType, types.CoroutineType)
+else:
+    SIMPLE_VIEWS_TYPES = (types.FunctionType,)
 
 
 class ViewNotResolved(Exception):
@@ -26,10 +33,14 @@ class MatchInfo(AbstractMatchInfo):
     def __init__(self, request, resource, tail, view):
         self.request = request
         self.resource = resource
+        self.tail = tail
         self.view = view
 
     def handler(self, request):
-        return self.view()
+        if isinstance(self.view, SIMPLE_VIEWS_TYPES):
+            return self.view(self.request, self.resource, self.tail)
+        else:
+            return self.view()
 
 
 class _NotFoundMatchInfo(AbstractMatchInfo):
@@ -113,7 +124,10 @@ class TraversalRouter(AbstractRouter):
         else:
             raise ViewNotResolved(request, resource, tail)
 
-        return view(request, resource, tail)
+        if isinstance(view, SIMPLE_VIEWS_TYPES):
+            return view
+        else:
+            return view(request, resource, tail)
 
     @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):
