@@ -43,14 +43,15 @@ class MatchInfo(AbstractMatchInfo):
             return self.view()
 
 
-class _NotFoundMatchInfo(AbstractMatchInfo):
+class TraversalExceptionMatchInfo(AbstractMatchInfo):
     route = None
 
-    def __init__(self):
-        pass
+    def __init__(self, request, exc):
+        self.request = request
+        self.exc = exc
 
     def handler(self, request):
-        raise HTTPNotFound()
+        raise self.exc
 
 
 class TraversalRouter(AbstractRouter):
@@ -60,19 +61,31 @@ class TraversalRouter(AbstractRouter):
     def __init__(self, root_factory=None):
         self.set_root_factory(root_factory)
         self.resources = {}
+        self.exceptions = {}
 
     @asyncio.coroutine
     def resolve(self, request):
-        resource, tail = yield from self.traverse(request)
+        try:
+            resource, tail = yield from self.traverse(request)
+            exc = None
+        except Exception as _exc:
+            resource = None
+            tail = None
+            exc = _exc
+
         request.resource = resource
         request.tail = tail
+        request.exc = exc
 
-        try:
-            view = self.resolve_view(request, resource, tail)
-        except ViewNotResolved:
-            return _NotFoundMatchInfo()
+        if resource is not None:
+            try:
+                view = self.resolve_view(request, resource, tail)
+            except ViewNotResolved:
+                return TraversalExceptionMatchInfo(request, HTTPNotFound())
 
-        return MatchInfo(request, resource, tail, view)
+            return MatchInfo(request, resource, tail, view)
+        else:
+            return TraversalExceptionMatchInfo(request, exc)
 
     @asyncio.coroutine
     def traverse(self, request, *args, **kwargs):

@@ -5,7 +5,11 @@ import pytest
 from aiohttp.web_exceptions import HTTPNotFound
 
 from aiohttp_traversal.traversal import find_root, lineage
-from aiohttp_traversal.router import MatchInfo, ViewNotResolved
+from aiohttp_traversal.router import (
+    MatchInfo,
+    ViewNotResolved,
+    TraversalExceptionMatchInfo,
+)
 
 
 def test_repr(router):
@@ -66,6 +70,24 @@ def test_resolve__not_found(loop, router, request, root):
 
     with pytest.raises(HTTPNotFound):
         mi.handler(request)
+
+
+def test_resolve__exception(loop, router, request, root):
+    request.path = '/a/b/c'
+
+    @asyncio.coroutine
+    def traverse(request):
+        raise ValueError()
+
+    router.traverse = traverse
+    mi = loop.run_until_complete(router.resolve(request))
+
+    assert isinstance(mi, TraversalExceptionMatchInfo)
+    assert isinstance(mi.exc, ValueError)
+    assert mi.route is None
+
+    with pytest.raises(ValueError):
+        loop.run_until_complete(mi.handler(request))
 
 
 def test_traverse(loop, router, request):
