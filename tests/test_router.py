@@ -140,8 +140,8 @@ def test_set_root_factory(router):
     assert router._root_factory is new_root_class
 
 
-def test_get_root(loop, router, app):
-    assert loop.run_until_complete(router.get_root(app)).name == 'ROOT'
+def test_get_root(router, app):
+    assert router.get_root(app).name == 'ROOT'
 
 
 @pytest.fixture

@@ -90,7 +90,7 @@ class TraversalRouter(AbstractRouter):
     @asyncio.coroutine
     def traverse(self, request, *args, **kwargs):
         path = tuple(p for p in request.path.split('/') if p)
-        root = yield from self.get_root(request.app, *args, **kwargs)
+        root = self.get_root(request.app, *args, **kwargs)
         if path:
             return (yield from traverse(root, path))
         else:
@@ -104,7 +104,6 @@ class TraversalRouter(AbstractRouter):
         """
         self._root_factory = root_factory
 
-    @asyncio.coroutine
     def get_root(self, app, *args, **kwargs):
         """ Create new root resource instance
         """
