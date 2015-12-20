@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +35,6 @@ class Traverser:
     def __getitem__(self, item):
         return Traverser(self.resource, self.path + (item,))
 
-    @asyncio.coroutine
     def __iter__(self):
         """ This object is coroutine
 
@@ -48,6 +48,9 @@ class Traverser:
             raise KeyError(tail[0])
         else:
             return resource
+
+    if sys.version_info >= (3, 5):
+        __await__ = __iter__
 
     @asyncio.coroutine
     def traverse(self):
