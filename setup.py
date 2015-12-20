@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='aiohttp_traversal',
-    version='0.8',
+    version='0.8.0',
     description='Traversal based router for aiohttp.web',
     classifiers=[
         "License :: OSI Approved :: BSD License",
