@@ -27,9 +27,19 @@ class ViewNotResolved(Exception):
         self.tail = tail
 
 
-class MatchInfo(AbstractMatchInfo):
+class BaseMatchInfo(AbstractMatchInfo):
     route = None
 
+    @asyncio.coroutine
+    def expect_handler(self, request):
+        return None
+
+    @property
+    def http_exception(self):
+        return None
+
+
+class MatchInfo(BaseMatchInfo):
     def __init__(self, request, resource, tail, view):
         self.request = request
         self.resource = resource
@@ -42,16 +52,28 @@ class MatchInfo(AbstractMatchInfo):
         else:
             return self.view()
 
+    def get_info(self):
+        return {
+            'request': self.request,
+            'resource': self.resource,
+            'tail': self.tail,
+            'view': self.view,
+        }
 
-class TraversalExceptionMatchInfo(AbstractMatchInfo):
-    route = None
 
+class TraversalExceptionMatchInfo(BaseMatchInfo):
     def __init__(self, request, exc):
         self.request = request
         self.exc = exc
 
     def handler(self, request):
         raise self.exc
+
+    def get_info(self):
+        return {
+            'request': self.request,
+            'exc': self.exc,
+        }
 
 
 class TraversalRouter(AbstractRouter):
