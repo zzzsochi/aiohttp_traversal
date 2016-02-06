@@ -18,7 +18,7 @@ else:
 
 
 class ViewNotResolved(Exception):
-    """ Raised from Application.resolve_view
+    """ Raised from Application.resolve_view.
     """
     def __init__(self, request, resource, tail):
         super().__init__(request, resource, tail)
@@ -120,20 +120,20 @@ class TraversalRouter(AbstractRouter):
 
     @resolver('root_factory')
     def set_root_factory(self, root_factory):
-        """ Set root resource class
+        """ Set root resource class.
 
         Analogue of the "set_root_factory" method from pyramid framework.
         """
         self._root_factory = root_factory
 
     def get_root(self, app, *args, **kwargs):
-        """ Create new root resource instance
+        """ Create new root resource instance.
         """
         return self._root_factory(app, *args, **kwargs)
 
     @resolver('resource')
     def resolve_view(self, request, resource, tail=()):
-        """ Resolve view for resource and tail
+        """ Resolve view for resource and tail.
         """
         if isinstance(resource, type):
             resource_class = resource
@@ -165,7 +165,7 @@ class TraversalRouter(AbstractRouter):
 
     @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):
-        """ Bind view for resource
+        """ Bind view for resource.
         """
         if isinstance(tail, str) and tail != '*':
             tail = tuple(i for i in tail.split('/') if i)
