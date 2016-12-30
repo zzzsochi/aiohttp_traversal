@@ -38,6 +38,16 @@ class BaseMatchInfo(AbstractMatchInfo):
     def http_exception(self):
         return None
 
+    @property
+    def apps(self):
+        return None
+
+    def add_app(self, app):
+        pass
+
+    def freeze(self):
+        pass
+
 
 class MatchInfo(BaseMatchInfo):
     def __init__(self, request, resource, tail, view):
