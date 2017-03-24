@@ -56,6 +56,14 @@ class MethodsView(View):
 
 
 class RESTView(MethodsView):
+
+    def serialize(self, data):
+        """You can owerride this method
+        if you data cant be serialized
+        standart json.dumps routine
+        """
+        return json.dumps(data).encode('utf8')
+
     @asyncio.coroutine
     def __call__(self):
         data = yield from super().__call__()
@@ -64,6 +72,6 @@ class RESTView(MethodsView):
             return data
         else:
             return Response(
-                body=json.dumps(data).encode('utf8'),
+                body=self.serialize(data),
                 headers={'Content-Type': 'application/json; charset=utf-8'},
             )

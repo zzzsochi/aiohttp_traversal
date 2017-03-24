@@ -101,7 +101,6 @@ def test_DispatchResource(loop, app):  # noqa
     request.app = app
 
     root = Root(app)
-    print(root)
 
     res_simple = loop.run_until_complete(iter(root['simple']))
     assert isinstance(res_simple, Res)
