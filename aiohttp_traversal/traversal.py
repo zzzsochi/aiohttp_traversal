@@ -7,11 +7,11 @@ log = logging.getLogger(__name__)
 
 @asyncio.coroutine
 def traverse(root, path):
-    """ Find resource for path
+    """ Find resource for path.
 
-    :param root: instance of Resource
-    :param list path: `('events', 'event_id', 'sets', 'set_id')`
-    :return: `(resource, tail)`
+    root: instance of Resource
+    path: list or path parts
+    return: tuple `(resource, tail)`
     """
     if not path:
         return root, tuple(path)
@@ -36,11 +36,11 @@ class Traverser:
         return Traverser(self.resource, self.path + (item,))
 
     def __iter__(self):
-        """ This object is coroutine
+        """ This object is coroutine.
 
         For this:
 
-            yield from app.get_root()['a']['b']['c']
+            yield from app.router.get_root()['a']['b']['c']
         """
         resource, tail = yield from self.traverse()
 
@@ -54,9 +54,9 @@ class Traverser:
 
     @asyncio.coroutine
     def traverse(self):
-        """ Main traversal algorithm
+        """ Main traversal algorithm.
 
-        :return: tuple `(resource, tail)`
+        Return tuple `(resource, tail)`.
         """
         last, current = None, self.resource
         path = list(self.path)

@@ -10,6 +10,8 @@ log = logging.getLogger(__name__)
 
 
 class Resource(AbstractResource):
+    """ Simple base resource.
+    """
     _parent = None
     name = None
     app = None
@@ -36,9 +38,9 @@ class Resource(AbstractResource):
 
 
 class InitCoroMixin:
-    """ Mixin for create initialization coroutine
+    """ Mixin for create initialization coroutine.
     """
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):  # noqa
         """ This is magic!
         """
         instance = super().__new__(cls)
@@ -78,6 +80,12 @@ class DispatchResource(DispatchMixin, Resource):
 
 
 class Root(DispatchResource):
+    """ This root accept application instance, not request.
+
+    Usage:
+
+        app.router.set_root_factory(lambda request, app=app: Root(app))
+    """
     def __init__(self, app, *args, **kwargs):
         super().__init__(parent=None, name=None)
         self.app = app
@@ -88,7 +96,7 @@ class Root(DispatchResource):
 
 @resolver('parent', 'child')
 def add_child(app, parent, name, child):
-    """ Add child resource for dispatch-resources
+    """ Add child resource for dispatch-resources.
     """
     if not issubclass(parent, DispatchMixin):
         raise ValueError("{!r} is not a DispatchMixin subclass"

@@ -15,7 +15,7 @@ class View(AbstractView):
 
     @asyncio.coroutine
     def __call__(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class MethodsView(View):
@@ -56,11 +56,11 @@ class MethodsView(View):
 
 
 class RESTView(MethodsView):
-
     def serialize(self, data):
-        """You can owerride this method
-        if you data cant be serialized
-        standart json.dumps routine
+        """ Serialize data to JSON.
+
+        You can owerride this method if you data cant be serialized
+        standart json.dumps routine.
         """
         return json.dumps(data).encode('utf8')
 
