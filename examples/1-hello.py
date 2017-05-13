@@ -1,15 +1,22 @@
 """
-Hello World application
+Hello World application.
+
+Start this:
+
+    $ python3 1-hello.py
+
+Or use aiohttp_devtools:
+
+    $ adev runserver 1-hello.py --app-factory create_app
 
 After start, check urls:
 
-    * GET localhost:8080/
-    * GET localhost:8080/json
-
+    * GET localhost:8000/
+    * GET localhost:8000/json
 """
 import asyncio
 
-from aiohttp.web import Application, Response
+from aiohttp.web import Application, Response, run_app
 
 from aiohttp_traversal.router import TraversalRouter
 from aiohttp_traversal.ext.views import View, RESTView
@@ -30,31 +37,15 @@ class HelloJSON(RESTView):
         return dict(text="Hello World!")
 
 
-def main():
-    loop = asyncio.get_event_loop()
-
-    app = Application(router=TraversalRouter())  # create main application instance
-    app.router.set_root_factory(Root)  # set root factory
+def create_app(loop=None):
+    app = Application(router=TraversalRouter(), loop=loop)  # create main application instance
+    app.router.set_root_factory(lambda request, app=app: Root(app))  # set root factory
     app.router.bind_view(Root, HelloView)  # add view for '/'
     app.router.bind_view(Root, HelloJSON, 'json')  # add view for '/json'
 
-    # listening socket
-    handler = app.make_handler()
-    f = loop.create_server(handler, 'localhost', 8080)
-    srv = loop.run_until_complete(f)
-
-    try:
-        loop.run_forever()  # run event loop
-    except KeyboardInterrupt:
-        pass
-    finally:
-        # stopping
-        loop.run_until_complete(handler.finish_connections(timeout=5.0))
-        srv.close()
-        loop.run_until_complete(srv.wait_closed())
-        loop.run_until_complete(app.finish())
-        loop.close()
+    return app
 
 
 if __name__ == '__main__':
-    main()
+    app = create_app()
+    run_app(app, port=8000)

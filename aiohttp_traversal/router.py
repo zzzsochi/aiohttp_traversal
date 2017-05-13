@@ -30,6 +30,9 @@ class ViewNotResolved(Exception):
 class BaseMatchInfo(AbstractMatchInfo):
     route = None
 
+    def __init__(self):
+        self._apps = []
+
     @asyncio.coroutine
     def expect_handler(self, request):
         return None
@@ -40,10 +43,10 @@ class BaseMatchInfo(AbstractMatchInfo):
 
     @property
     def apps(self):
-        return None
+        return self._apps
 
     def add_app(self, app):
-        pass
+        self._apps.append(app)
 
     def freeze(self):
         pass
@@ -51,6 +54,7 @@ class BaseMatchInfo(AbstractMatchInfo):
 
 class MatchInfo(BaseMatchInfo):
     def __init__(self, request, resource, tail, view):
+        super().__init__()
         self.request = request
         self.resource = resource
         self.tail = tail
@@ -73,6 +77,7 @@ class MatchInfo(BaseMatchInfo):
 
 class TraversalExceptionMatchInfo(BaseMatchInfo):
     def __init__(self, request, exc):
+        super().__init__()
         self.request = request
         self.exc = exc
 
@@ -122,7 +127,7 @@ class TraversalRouter(AbstractRouter):
     @asyncio.coroutine
     def traverse(self, request, *args, **kwargs):
         path = tuple(p for p in request.path.split('/') if p)
-        root = self.get_root(request.app, *args, **kwargs)
+        root = self.get_root(request, *args, **kwargs)
         if path:
             return (yield from traverse(root, path))
         else:
@@ -136,10 +141,10 @@ class TraversalRouter(AbstractRouter):
         """
         self._root_factory = root_factory
 
-    def get_root(self, app, *args, **kwargs):
+    def get_root(self, request, *args, **kwargs):
         """ Create new root resource instance.
         """
-        return self._root_factory(app, *args, **kwargs)
+        return self._root_factory(request, *args, **kwargs)
 
     @resolver('resource')
     def resolve_view(self, request, resource, tail=()):
