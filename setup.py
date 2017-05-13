@@ -19,7 +19,7 @@ setup(
     keywords=['asyncio', 'aiohttp', 'traversal', 'pyramid'],
     packages=['aiohttp_traversal', 'aiohttp_traversal.ext'],
     install_requires=[
-        'aiohttp',
+        'aiohttp >=2.0',
         'resolver_deco',
         'zope.dottedname',
     ],
