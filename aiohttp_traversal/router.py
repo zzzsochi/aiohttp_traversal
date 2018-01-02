@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 import types
+from contextlib import contextmanager
 
 from aiohttp.abc import AbstractRouter, AbstractMatchInfo
 from aiohttp.web_exceptions import HTTPNotFound
@@ -29,6 +30,7 @@ class ViewNotResolved(Exception):
 
 class BaseMatchInfo(AbstractMatchInfo):
     route = None
+    _current_app = None
 
     def __init__(self):
         self._apps = []
@@ -50,6 +52,18 @@ class BaseMatchInfo(AbstractMatchInfo):
 
     def freeze(self):
         pass
+
+    @contextmanager
+    def set_current_app(self, app):
+        assert app in self._apps, (
+            "Expected one of the following apps {!r}, got {!r}"
+            .format(self._apps, app))
+        prev = self._current_app
+        self._current_app = app
+        try:
+            yield
+        finally:
+            self._current_app = prev
 
 
 class MatchInfo(BaseMatchInfo):
