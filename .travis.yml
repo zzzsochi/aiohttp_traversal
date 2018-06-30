@@ -5,7 +5,7 @@ python:
 
 install:
     - python3 setup.py install
-    - pip install pytest pytest-cov coveralls
+    - pip install pytest pytest-aiohttp pytest-cov coveralls
 
 script:
     - py.test tests -v --cov aiohttp_traversal --cov-report term-missing
