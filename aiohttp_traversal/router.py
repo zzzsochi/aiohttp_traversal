@@ -53,6 +53,10 @@ class BaseMatchInfo(AbstractMatchInfo):
     def freeze(self):
         pass
 
+    @property
+    def current_app(self):
+        return self._current_app
+
     @contextmanager
     def set_current_app(self, app):
         assert app in self._apps, (
