@@ -10,9 +10,9 @@ def load_example(name):
     return mod
 
 
-async def test_hello(aiohttp_client, loop):
+async def test_hello(aiohttp_client):
     mod = load_example('1-hello')
-    app = mod.create_app(loop)
+    app = mod.create_app()
     client = await aiohttp_client(app)
 
     # HelloView
@@ -30,9 +30,9 @@ async def test_hello(aiohttp_client, loop):
     assert data == {'text': 'Hello World!'}
 
 
-async def test_middleware(aiohttp_client, loop):
+async def test_middleware(aiohttp_client):
     mod = load_example('2-middleware')
-    app = mod.create_app(loop)
+    app = mod.create_app()
     client = await aiohttp_client(app)
 
     # Hello

@@ -47,8 +47,8 @@ def router(root_factory):
 
 
 @pytest.fixture
-def app(loop, router):
-    return Application(loop=loop, router=router)
+def app(router):
+    return Application(router=router)
 
 
 @pytest.fixture

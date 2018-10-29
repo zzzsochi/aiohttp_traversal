@@ -37,8 +37,8 @@ class HelloJSON(RESTView):
         return dict(text="Hello World!")
 
 
-def create_app(loop=None):
-    app = Application(router=TraversalRouter(), loop=loop)  # create main application instance
+def create_app():
+    app = Application(router=TraversalRouter())  # create main application instance
     app.router.set_root_factory(lambda request, app=app: Root(app))  # set root factory
     app.router.bind_view(Root, HelloView)  # add view for '/'
     app.router.bind_view(Root, HelloJSON, 'json')  # add view for '/json'

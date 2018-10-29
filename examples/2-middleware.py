@@ -61,8 +61,8 @@ def error_response(status, error, reason, headers) -> aiohttp.web.Response:
     )
 
 
-def create_app(loop=None):
-    app = Application(router=TraversalRouter(), loop=loop)
+def create_app():
+    app = Application(router=TraversalRouter())
 
     app.middlewares.append(json_error_middleware)
 
