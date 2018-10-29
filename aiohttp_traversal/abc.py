@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABCMeta, abstractmethod, abstractproperty
 
 
@@ -16,9 +15,8 @@ class AbstractResource(metaclass=ABCMeta):
             return traversal.Traverser(self, [name])
         """
 
-    @asyncio.coroutine
     @abstractmethod
-    def __getchild__(self, name):
+    async def __getchild__(self, name):
         """ Return child resource or None, if not exists """
 
 
@@ -27,7 +25,6 @@ class AbstractView(metaclass=ABCMeta):
     def __init__(self, resource, request):
         """ Receive current traversed resource """
 
-    @asyncio.coroutine
     @abstractmethod
-    def __call__(self):
+    async def __call__(self):
         """ Return aiohttp.web.Response """

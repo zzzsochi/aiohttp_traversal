@@ -90,8 +90,7 @@ def test_DispatchResource(loop, app):  # noqa
     class CoroRes(InitCoroMixin, Resource):
         calls_ainit = 0
 
-        @asyncio.coroutine
-        def __ainit__(self):
+        async def __ainit__(self):
             self.calls_ainit += 1
 
     add_child(app, 'aiohttp_traversal.ext.resources.Root', 'simple', Res)
@@ -102,16 +101,16 @@ def test_DispatchResource(loop, app):  # noqa
 
     root = Root(app)
 
-    res_simple = loop.run_until_complete(iter(root['simple']))
+    res_simple = loop.run_until_complete(root['simple'])
     assert isinstance(res_simple, Res)
     assert res_simple.name == 'simple'
     assert res_simple.__parent__ is root
 
-    res_coro = loop.run_until_complete(iter(root['coro']))
+    res_coro = loop.run_until_complete(root['coro'])
     assert isinstance(res_coro, CoroRes)
     assert res_coro.name == 'coro'
     assert res_coro.__parent__ is root
     assert res_coro.calls_ainit == 1
 
     with pytest.raises(KeyError):
-        loop.run_until_complete(iter(root['not_exist']))
+        loop.run_until_complete(root['not_exist'])

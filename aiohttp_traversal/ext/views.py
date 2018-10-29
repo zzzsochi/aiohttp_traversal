@@ -13,45 +13,37 @@ class View(AbstractView):
         self.resource = resource
         self.tail = tail
 
-    @asyncio.coroutine
-    def __call__(self):
+    async def __call__(self):
         raise NotImplementedError()
 
 
 class MethodsView(View):
     methods = frozenset()  # {'get', 'post', 'put', 'patch', 'delete', 'option'}
 
-    @asyncio.coroutine
-    def __call__(self):
+    async def __call__(self):
         method = self.request.method.lower()
 
         if method in self.methods:
-            return (yield from getattr(self, method)())
+            return await getattr(self, method)()
         else:
             raise HTTPMethodNotAllowed(method, self.methods)
 
-    @asyncio.coroutine
-    def get(self):
+    async def get(self):
         raise NotImplementedError
 
-    @asyncio.coroutine
-    def post(self):
+    async def post(self):
         raise NotImplementedError
 
-    @asyncio.coroutine
-    def put(self):
+    async def put(self):
         raise NotImplementedError
 
-    @asyncio.coroutine
-    def patch(self):
+    async def patch(self):
         raise NotImplementedError
 
-    @asyncio.coroutine
-    def delete(self):
+    async def delete(self):
         raise NotImplementedError
 
-    @asyncio.coroutine
-    def option(self):
+    async def option(self):
         raise NotImplementedError
 
 
@@ -64,9 +56,8 @@ class RESTView(MethodsView):
         """
         return json.dumps(data).encode('utf8')
 
-    @asyncio.coroutine
-    def __call__(self):
-        data = yield from super().__call__()
+    async def __call__(self):
+        data = await super().__call__()
 
         if isinstance(data, StreamResponse):
             return data

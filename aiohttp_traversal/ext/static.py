@@ -27,8 +27,7 @@ class StaticResource(Resource):
         super().__init__(parent, name)
         self.path = os.path.abspath(self.path)
 
-    @asyncio.coroutine
-    def __getchild__(self, name):
+    async def __getchild__(self, name):
         return None
 
     def get(self, path):
@@ -45,8 +44,8 @@ class StaticResource(Resource):
 
 
 class StaticView(View):
-    @asyncio.coroutine
-    def __call__(self):
+
+    async def __call__(self):
         if self.request.tail:
             path = os.path.join(*self.request.tail)
         else:

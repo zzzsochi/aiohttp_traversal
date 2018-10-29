@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import sys
 import types
 from contextlib import contextmanager
 
@@ -12,10 +11,7 @@ from .traversal import traverse
 
 log = logging.getLogger(__name__)
 
-if sys.version_info >= (3, 5, 0):  # b/c for 3.4
-    SIMPLE_VIEWS_TYPES = (types.FunctionType, types.CoroutineType)
-else:
-    SIMPLE_VIEWS_TYPES = (types.FunctionType,)
+SIMPLE_VIEWS_TYPES = (types.FunctionType, types.CoroutineType)
 
 
 class ViewNotResolved(Exception):
@@ -35,8 +31,7 @@ class BaseMatchInfo(AbstractMatchInfo):
     def __init__(self):
         self._apps = []
 
-    @asyncio.coroutine
-    def expect_handler(self, request):
+    async def expect_handler(self, request):
         return None
 
     @property
@@ -118,10 +113,9 @@ class TraversalRouter(AbstractRouter):
         self.resources = {}
         self.exceptions = {}
 
-    @asyncio.coroutine
-    def resolve(self, request):
+    async def resolve(self, request):
         try:
-            resource, tail = yield from self.traverse(request)
+            resource, tail = await self.traverse(request)
             exc = None
         except Exception as _exc:
             resource = None
@@ -142,12 +136,11 @@ class TraversalRouter(AbstractRouter):
         else:
             return TraversalExceptionMatchInfo(request, exc)
 
-    @asyncio.coroutine
-    def traverse(self, request, *args, **kwargs):
+    async def traverse(self, request, *args, **kwargs):
         path = tuple(p for p in request.path.split('/') if p)
         root = self.get_root(request, *args, **kwargs)
         if path:
-            return (yield from traverse(root, path))
+            return await traverse(root, path)
         else:
             return root, path
 

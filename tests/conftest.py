@@ -31,8 +31,7 @@ class Resource(AbstractResource):
     def __getitem__(self, name):
         return Traverser(self, (name,))
 
-    @asyncio.coroutine
-    def __getchild__(self, name):
+    async def __getchild__(self, name):
         if name == 'not':
             return None
         else:

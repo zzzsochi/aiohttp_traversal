@@ -1,5 +1,4 @@
 from unittest.mock import Mock
-import asyncio
 
 import pytest
 from aiohttp.web_exceptions import HTTPNotFound
@@ -27,13 +26,11 @@ def request(app):
 def test_resolve(loop, router, request, root):
     request.path = '/a/b/c'
 
-    @asyncio.coroutine
-    def traverse(request):
+    async def traverse(request):
         return ('res', 'tail')
 
     def resolve_view(req, res, tail):
-        @asyncio.coroutine
-        def view_call():
+        async def view_call():
             return 'view_result'
 
         mock = Mock(name='view')
@@ -56,8 +53,7 @@ def test_resolve(loop, router, request, root):
 def test_resolve__not_found(loop, router, request, root):
     request.path = '/a/b/c'
 
-    @asyncio.coroutine
-    def traverse(request):
+    async def traverse(request):
         return ('res', 'tail')
 
     def resolve_view(req, res, tail):
@@ -75,8 +71,7 @@ def test_resolve__not_found(loop, router, request, root):
 def test_resolve__exception(loop, router, request, root):
     request.path = '/a/b/c'
 
-    @asyncio.coroutine
-    def traverse(request):
+    async def traverse(request):
         raise ValueError()
 
     router.traverse = traverse
@@ -175,8 +170,8 @@ def test_resolve_view(router, Res, View):  # noqa
 
 
 def test_resolve_view_simple(router, Res):  # noqa
-    @asyncio.coroutine
-    def view():
+
+    async def view():
         pass
 
     res = Res()

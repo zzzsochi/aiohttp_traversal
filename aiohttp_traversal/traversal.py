@@ -1,12 +1,10 @@
 import asyncio
 import logging
-import sys
 
 log = logging.getLogger(__name__)
 
 
-@asyncio.coroutine
-def traverse(root, path):
+async def traverse(root, path):
     """ Find resource for path.
 
     root: instance of Resource
@@ -22,11 +20,10 @@ def traverse(root, path):
     while path:
         traverser = traverser[path.pop(0)]
 
-    return (yield from traverser.traverse())
+    return await traverser.traverse()
 
 
 class Traverser:
-    _is_coroutine = True
 
     def __init__(self, resource, path):
         self.resource = resource
@@ -35,25 +32,24 @@ class Traverser:
     def __getitem__(self, item):
         return Traverser(self.resource, self.path + (item,))
 
-    def __iter__(self):
+    def __await__(self):
+        return self.__anext__().__await__()
+
+    async def __anext__(self):
         """ This object is coroutine.
 
         For this:
 
-            yield from app.router.get_root()['a']['b']['c']
+            await app.router.get_root()['a']['b']['c']
         """
-        resource, tail = yield from self.traverse()
+        resource, tail = await self.traverse()
 
         if tail:
             raise KeyError(tail[0])
         else:
             return resource
 
-    if sys.version_info >= (3, 5):
-        __await__ = __iter__
-
-    @asyncio.coroutine
-    def traverse(self):
+    async def traverse(self):
         """ Main traversal algorithm.
 
         Return tuple `(resource, tail)`.
@@ -63,7 +59,7 @@ class Traverser:
 
         while path:
             item = path[0]
-            last, current = current, (yield from current.__getchild__(item))
+            last, current = current, await current.__getchild__(item)
 
             if current is None:
                 return last, tuple(path)

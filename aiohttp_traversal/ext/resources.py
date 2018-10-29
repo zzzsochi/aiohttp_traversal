@@ -32,8 +32,7 @@ class Resource(AbstractResource):
     def __getitem__(self, name):
         return Traverser(self, (name,))
 
-    @asyncio.coroutine
-    def __getchild__(self, name):
+    async def __getchild__(self, name):
         return None
 
 
@@ -45,22 +44,20 @@ class InitCoroMixin:
         """
         instance = super().__new__(cls)
 
-        @asyncio.coroutine
-        def coro():
+        async def coro():
             instance.__init__(*args, **kwargs)
-            yield from instance.__ainit__()
+            await instance.__ainit__()
             return instance
 
         return coro()
 
-    @asyncio.coroutine
-    def __ainit__(self):
+    async def __ainit__(self):
         raise NotImplementedError
 
 
 class DispatchMixin:
-    @asyncio.coroutine
-    def __getchild__(self, name):
+
+    async def __getchild__(self, name):
         if (self.setup is not None and
                 'children' in self.setup and
                 name in self.setup['children']):
@@ -68,7 +65,7 @@ class DispatchMixin:
             res = self.setup['children'][name](self, name)
 
             if asyncio.iscoroutine(res):
-                return (yield from res)
+                return await res
             else:
                 return res
         else:
