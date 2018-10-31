@@ -1,3 +1,6 @@
+os: linux
+dist: xenial
+
 language: python
 python:
     - "3.5"
@@ -5,8 +8,8 @@ python:
     - "3.7"
 
 install:
-    - python3 setup.py install
-    - pip install pytest pytest-aiohttp pytest-cov coveralls
+    - travis_retry python3 setup.py install
+    - travis_retry pip install pytest pytest-aiohttp pytest-cov coveralls
 
 script:
     - py.test tests -v --cov aiohttp_traversal --cov-report term-missing
